@@ -5,7 +5,7 @@ import { IDataService } from "./IDataService";
 export class RepositoryService {
     private dataService: IDataService;
     private readonly reposStartWith = process.env.REPOS_START_WITH ?? 'repo'
-    private readonly CONCURRENCY_LIMIT =2
+    private readonly CONCURRENCY_LIMIT = 2
   
     constructor(dataService: IDataService) {
       this.dataService = dataService;
@@ -24,14 +24,27 @@ export class RepositoryService {
     }
 
     async getReposDetails(repoNames: string[], concurrencyLimit: number =this.CONCURRENCY_LIMIT) {
-      //const pLimit = await this.loadPLimit();
-      //const limit = pLimit(concurrencyLimit);
-    console.log(repoNames)
-      const promises = repoNames.map(name => 
-        this.repoDetails( name)) ;
+      const results: any[] = []; 
+      const chunks: string[][] = []; 
 
-    
-      return Promise.all(promises);
+  
+      for (let i = 0; i < repoNames.length; i += concurrencyLimit) {
+        chunks.push(repoNames.slice(i, i + concurrencyLimit));
+      }
+
+      for (const chunk of chunks) {
+        const promises = chunk.map(name => this.repoDetails(name));
+
+        try {
+            const chunkResults = await Promise.all(promises);
+            results.push(...chunkResults); 
+          } catch (error) {
+            console.error('Error processing chunk:', error);
+            throw error
+          }
+        }
+
+        return results;
     } 
 
     private async repoDetails(name: string) : Promise<any>{
