@@ -3,6 +3,5 @@ export interface IDataService {
     getRepo(name: string): Promise<any>;
     getContents(name: string): Promise<any>;
     getHooks(name: string): Promise<any>;
-    getYmlContent(url: string): Promise<any>;
   }
   

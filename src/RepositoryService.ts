@@ -43,17 +43,10 @@ export class RepositoryService {
             size: repoResponse.value.data.size,
             owner: repoResponse.value.data.owner.login,
             isPrivate: repoResponse.value.data.private,
-            numberOfFiles: contentsResponse.value.data,
-            ymlContent: 'No YML file found', 
+            numberOfFiles: contentsResponse.value.totalFileCount,
+            ymlContent: contentsResponse.value.yamlContent, 
             webhooks: hooksResponse.value.data.map((hook: any) => hook.config.url)
           };
-    
-
-          // const ymlFile = contentsResponse.value.data.find((file: any) => file.name.endsWith('.yaml'));
-          // if (ymlFile) {
-          //   const ymlContentResponse = await this.dataService.getYmlContent(ymlFile.download_url);
-          //   repoData.ymlContent = ymlContentResponse.data;
-          // }
     
           return repoData;
         } else {
