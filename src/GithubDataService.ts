@@ -18,33 +18,45 @@ export class GithubDataService implements IDataService {
       }
   
     async getRepo(name: string): Promise<any> {
-      return axios.get(`${this.githubRepoUrl}/${name}`, this.githubRequestHeaders);
+      const url = `${this.githubRepoUrl}/${name}`;
+      console.log(`Quering repo (${name}) data: ${url}`)
+      return axios.get(url , this.githubRequestHeaders);
     }
   
     async getContents(name: string): Promise<any> {
+      console.log(`Quering repo (${name}) contents`)
       return await this.getFilesCountAndYamlContent(name)
     }
   
     async getHooks(name: string): Promise<any> {
-      return axios.get(`${this.githubRepoUrl}/${name}/hooks`, this.githubRequestHeaders);
+      const url = `${this.githubRepoUrl}/${name}/hooks`;
+      console.log(`Quering repo (${name}) hooks: ${url}`)
+      return axios.get(url, this.githubRequestHeaders);
     }
   
     private async getYmlContent(url: string): Promise<any> {
+      console.log(`Getting YAML file content: ${url}`)
       return axios.get(url);
     }
 
     private async getTreeRecursively(sha: string, name : string): Promise<any[]> {
-        const response = await axios.get(`${this.githubRepoUrl}/${name}/git/trees/${sha}?recursive=1`,this.githubRequestHeaders);
+        const url = `${this.githubRepoUrl}/${name}/git/trees/${sha}?recursive=1`;
+        console.log(`Getting repo (${name}) tree: ${url}`)
+        const response = await axios.get(url, this.githubRequestHeaders);
         return response.data.tree;
     }
     
     private async getBranchSha(name: string): Promise<string> {
-        const response = await axios.get(`${this.githubRepoUrl}/${name}/branches/main`,this.githubRequestHeaders);
+        const url = `${this.githubRepoUrl}/${name}/branches/main`;
+        console.log(`Getting repo (${name}) main branch sha: ${url}`)
+        const response = await axios.get(url, this.githubRequestHeaders);
         return response.data.commit.sha;
     }
 
     async getDownloadableUrl(name: string, path: string): Promise<string | null> {
-        const response = await axios.get(`${this.githubRepoUrl}/${name}/contents/${path}`,this.githubRequestHeaders);
+        const url = `${this.githubRepoUrl}/${name}/contents/${path}`;
+        console.log(`Getting downloadable file link (${path}) using: ${url}`)
+        const response = await axios.get(url, this.githubRequestHeaders);
         return response.data.download_url;
     }
 

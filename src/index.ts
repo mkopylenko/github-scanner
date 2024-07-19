@@ -29,7 +29,8 @@ const repositoryService : RepositoryService = new RepositoryService(dataService)
 const resolvers = {
   Query: {
     listRepositories: async () => {
-      try{  
+      try{ 
+        console.log('Fetching the list of repositories') 
             return await repositoryService.fetchRepositores();
         } catch(error) {
             console.error('Error fetching repositories:', error);
@@ -39,6 +40,7 @@ const resolvers = {
 
     getReposDetails: async (_: any, { repoNames }: { repoNames: string[] }) => {
         try {
+                console.log(`Fetching the repos details for repos: ${repoNames}`) 
                 return await repositoryService.getReposDetails(repoNames);
            
           } catch (error) {

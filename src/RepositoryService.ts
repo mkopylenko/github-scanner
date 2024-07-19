@@ -92,9 +92,4 @@ export class RepositoryService {
         console.error('One or more requests failed:', errors);
         throw new Error('Failed to fetch all repository details');
     }
-
-    private async loadPLimit() {
-      const pLimitModule = await import('p-limit');
-      return pLimitModule.default; // p-limit exports the default function
-    }
 }
