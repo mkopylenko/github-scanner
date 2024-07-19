@@ -1,8 +1,12 @@
 import axios from 'axios';
+import * as crypto from 'crypto';
 import { IDataService } from './IDataService';
 
 export class GithubDataService implements IDataService {
-    private readonly githubToken = process.env.GITHUB_TOKEN;
+
+    private readonly algorithm = 'aes-256-ctr'; // Choose an encryption algorithm
+    private readonly secretKey = crypto.randomBytes(32); // Generate a secret key
+    private readonly githubToken = this.decrypt(process.env.GITHUB_TOKEN);
     private readonly githubUsername = process.env.GITHUB_USERNAME;
     private readonly baseGithubUrl = process.env.BASE_GITHUB_URL ?? 'https://api.github.com'
     private readonly githubRepoUrl = `${this.baseGithubUrl}/repos/${this.githubUsername}`;
@@ -61,5 +65,19 @@ export class GithubDataService implements IDataService {
        }
        return {totalFileCount: allFiles.length, yamlContent: yamlContent}
     }
+
+    private decrypt(hash: string|undefined): string {
+      if (!hash){
+        throw "No github token defined"
+      }
+      const [ivString, encryptedString] = hash.split(':');
+      const iv = Buffer.from(ivString, 'hex');
+      const encryptedText = Buffer.from(encryptedString, 'hex');
+
+      const decipher = crypto.createDecipheriv(this.algorithm, this.secretKey, iv);
+      const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+    console.log(decrypted.toString())
+      return decrypted.toString();
+    };
   }
   
