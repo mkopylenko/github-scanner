@@ -21,7 +21,7 @@ export class GithubDataService implements IDataService {
     }
   
     async getContents(name: string): Promise<any> {
-      return axios.get(`${this.githubRepoUrl}/${name}/contents`, this.githubRequestHeaders);
+      return await this.countFiles(name)
     }
   
     async getHooks(name: string): Promise<any> {
@@ -31,5 +31,58 @@ export class GithubDataService implements IDataService {
     async getYmlContent(url: string): Promise<any> {
       return axios.get(url);
     }
+
+    async getTreeRecursively(sha: string, name : string): Promise<any[]> {
+      try {
+        const response = await axios.get(`${this.baseGithubUrl}/repos/${this.githubUsername}/${name}/git/trees/${sha}?recursive=1`,this.githubRequestHeaders);
+        return response.data.tree;
+      } catch (error) {
+        console.error(`Failed to fetch tree: ${error}`);
+        throw error;
+      }
+    }
+    
+    async getBranchSha(name: string): Promise<string> {
+      try {
+        const response = await axios.get(`${this.baseGithubUrl}/repos/${this.githubUsername}/${name}/branches/main`,this.githubRequestHeaders);
+        return response.data.commit.sha;
+      } catch (error) {
+        console.error(`Failed to get branch SHA: ${error}`);
+        throw error;
+      }
+    }
+
+    async getDownloadableUrl(name: string, path: string): Promise<string | null> {
+      try {
+        const response = await axios.get(`${this.baseGithubUrl}/repos/${this.githubUsername}/${name}/contents/${path}`,this.githubRequestHeaders);
+        return response.data.download_url;
+      } catch (error) {
+        console.error(`Failed to fetch file: ${error}`);
+      throw error;
+      }
+    }
+
+    async countFiles(name: string): Promise<number> {
+      try {
+        const branchSha = await this.getBranchSha(name);
+        const tree = await this.getTreeRecursively(branchSha, name);
+        const allFiles = tree.filter((item: { type: string; }) =>item.type === 'blob')
+        const ymlFiles = tree.filter((item: { path: string; }) =>item.path.endsWith('.yaml'));
+        if (ymlFiles && ymlFiles.length >0){
+          const url = await this.getDownloadableUrl(name, ymlFiles[0].path);
+          if (url){
+            const yamlContent = await this.getYmlContent(url)
+            console.log(yamlContent.data)
+          }
+        }
+       
+    console.log(`Count: ${allFiles.length}`)
+        return allFiles.length;
+      } catch (error) {
+        console.error(`Failed to count files: ${error}`);
+        throw error;
+      }
+    }
+    
 }
   

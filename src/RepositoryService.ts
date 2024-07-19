@@ -37,23 +37,23 @@ export class RepositoryService {
         if (repoResponse.status === 'fulfilled' && 
             contentsResponse.status === 'fulfilled' && 
             hooksResponse.status === 'fulfilled') {
-                console.log(repoResponse.value.data)
+
           const repoData = {
             name: repoResponse.value.data.name,
             size: repoResponse.value.data.size,
             owner: repoResponse.value.data.owner.login,
             isPrivate: repoResponse.value.data.private,
-            numberOfFiles: contentsResponse.value.data.length,
+            numberOfFiles: contentsResponse.value.data,
             ymlContent: 'No YML file found', 
             webhooks: hooksResponse.value.data.map((hook: any) => hook.config.url)
           };
     
 
-          const ymlFile = contentsResponse.value.data.find((file: any) => file.name.endsWith('.yaml'));
-          if (ymlFile) {
-            const ymlContentResponse = await this.dataService.getYmlContent(ymlFile.download_url);
-            repoData.ymlContent = ymlContentResponse.data;
-          }
+          // const ymlFile = contentsResponse.value.data.find((file: any) => file.name.endsWith('.yaml'));
+          // if (ymlFile) {
+          //   const ymlContentResponse = await this.dataService.getYmlContent(ymlFile.download_url);
+          //   repoData.ymlContent = ymlContentResponse.data;
+          // }
     
           return repoData;
         } else {

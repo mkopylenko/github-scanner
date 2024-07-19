@@ -1,9 +1,8 @@
 import { ApolloServer, gql } from 'apollo-server';
-import axios, { AxiosResponse } from 'axios';
 import * as dotenv from 'dotenv';
-import { GithubDataService } from './GitHubDataService';
 import { IDataService } from './IDataService';
 import { RepositoryService } from './RepositoryService';
+import { GithubDataService } from './GithubDataService';
 
 dotenv.config();
 
