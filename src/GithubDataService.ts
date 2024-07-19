@@ -61,6 +61,7 @@ export class GithubDataService implements IDataService {
     }
 
     private async getFilesCountAndYamlContent(name: string): Promise<any> {
+
         const branchSha = await this.getBranchSha(name);
         const tree = await this.getTreeRecursively(branchSha, name);
         const allFiles = tree.filter((item: { type: string; }) =>item.type === 'blob')
@@ -72,7 +73,7 @@ export class GithubDataService implements IDataService {
              yamlContent = await this.getYmlContent(url);
           }
        }
-       return {totalFileCount: allFiles.length, yamlContent: yamlContent.data?? 'No YML file found'}
+       return {totalFileCount: allFiles.length, yamlContent: yamlContent?.data?? 'No YML file found'}
     }
 
     

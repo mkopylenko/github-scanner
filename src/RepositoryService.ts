@@ -40,7 +40,7 @@ export class RepositoryService {
             results.push(...chunkResults); 
           } catch (error) {
             console.error('Error processing chunk:', error);
-            throw error
+            throw error;
           }
         }
 
@@ -48,17 +48,17 @@ export class RepositoryService {
     } 
 
     private async repoDetails(name: string) : Promise<any>{
+      try{
         const repoPromise = await this.dataService.getRepo(name);
         const contentsPromise = await this.dataService.getContents(name);
         const hooksPromise = await this.dataService.getHooks(name);
-    
+   
 
         const [repoResponse, contentsResponse, hooksResponse] = await Promise.allSettled([
           repoPromise,
           contentsPromise,
           hooksPromise
         ]);
-    
 
         if (repoResponse.status === 'fulfilled' && 
             contentsResponse.status === 'fulfilled' && 
@@ -78,6 +78,9 @@ export class RepositoryService {
         } else {
           this.handleErrors(repoResponse, contentsResponse, hooksResponse);
         }
+      } catch(error){
+        throw new Error('Failed to fetch all repository details');
+      }
     }
 
     private  handleErrors(repoResponse: PromiseFulfilledResult<AxiosResponse<any,any>>|PromiseRejectedResult, 
