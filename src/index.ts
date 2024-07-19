@@ -21,7 +21,7 @@ const typeDefs = gql`
 
   type Query {
     listRepositories: [Repository]
-    repoDetails(name: String!): Repository
+    getReposDetails(repoNames: [String!]!): [Repository]
   }
 `;
 const dataService: IDataService = new GithubDataService()
@@ -37,13 +37,13 @@ const resolvers = {
         }
     },
 
-    repoDetails: async (_: any, { name }: { name: string }) => {
+    getReposDetails: async (_: any, { repoNames }: { repoNames: string[] }) => {
         try {
-                return await repositoryService.repoDetails(name);
+                return await repositoryService.getReposDetails(repoNames);
            
           } catch (error) {
-            console.error(`Error fetching repository details (repository name: ${name}):`, error);
-            throw new Error(`Failed to fetch repository details (repository name: ${name})`);
+            console.error(`Error fetching repository details:`, error);
+            throw new Error(`Failed to fetch repository details`);
           }
 
        
