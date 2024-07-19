@@ -53,14 +53,14 @@ export class GithubDataService implements IDataService {
         const tree = await this.getTreeRecursively(branchSha, name);
         const allFiles = tree.filter((item: { type: string; }) =>item.type === 'blob')
         const ymlFiles = tree.filter((item: { path: string; }) =>item.path.endsWith('.yaml'));
-        let yamlContent = 'No YML file found';
+        let yamlContent=[]
         if (ymlFiles && ymlFiles.length >0){
           const url = await this.getDownloadableUrl(name, ymlFiles[0].path);
           if (url){
              yamlContent = await this.getYmlContent(url);
           }
        }
-       return {totalFileCount: allFiles.length, yamlContent: yamlContent}
+       return {totalFileCount: allFiles.length, yamlContent: yamlContent.data?? 'No YML file found'}
     }
 
     

@@ -70,7 +70,7 @@ export class RepositoryService {
             owner: repoResponse.value.data.owner.login,
             isPrivate: repoResponse.value.data.private,
             numberOfFiles: contentsResponse.value.totalFileCount,
-           // ymlContent: contentsResponse.value.yamlContent, 
+            ymlContent: contentsResponse.value.yamlContent, 
             webhooks: hooksResponse.value.data.map((hook: any) => hook.config.url)
           };
     
