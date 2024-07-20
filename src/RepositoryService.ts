@@ -1,29 +1,49 @@
 import { AxiosResponse } from "axios";
 import { IDataService } from "./IDataService";
+import NodeCache from "node-cache";
 
 
 export class RepositoryService {
     private dataService: IDataService;
     private readonly reposStartWith = process.env.REPOS_START_WITH ?? 'repo'
+    private readonly userName = process.env.GITHUB_USERNAME;
     private readonly CONCURRENCY_LIMIT = 2
+    private readonly cache = new NodeCache();
+    private readonly CACHE_TTL_SEC = 30;
   
     constructor(dataService: IDataService) {
       this.dataService = dataService;
     }
 
     async fetchRepositores(): Promise<any>{
+        const cacheKey = `list_repos_github_${this.userName}_${this.reposStartWith}`;
+        const resultFromCache = this.cache.get(cacheKey);
+        if (resultFromCache) {
+          console.log(`Got fetchRepositores results from cache, key: ${cacheKey}`)
+          return resultFromCache
+        }
         const response = await this.dataService.getRepos();
-
-        return response.data
+        const result = response.data
             .filter((item: { name: string; }) =>item.name.startsWith(this.reposStartWith))
             .map((item: { name: string; size: number; owner: { login: string; }; }) => ({
                 name: item.name,
                 size: item.size,
                 owner: item.owner.login 
             }));
+        this.cache.set(cacheKey, result, this.CACHE_TTL_SEC)
+        return result;
     }
 
     async getReposDetails(repoNames: string[], concurrencyLimit: number =this.CONCURRENCY_LIMIT) {
+      repoNames.sort((a, b) => a.localeCompare(b));
+      const reponamesString = repoNames.join();
+      const cacheKey = `list_repos_details_github_${this.userName}_${reponamesString}`;
+      const resultFromCache = this.cache.get(cacheKey);
+      if (resultFromCache) {
+          console.log(`Got getReposDetails results from cache, key: ${cacheKey}`)
+          return resultFromCache
+      }
+      
       const results: any[] = []; 
       const chunks: string[][] = []; 
 
@@ -43,7 +63,7 @@ export class RepositoryService {
             throw error;
           }
         }
-
+        this.cache.set(cacheKey, results, this.CACHE_TTL_SEC)
         return results;
     } 
 
